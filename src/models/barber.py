@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import DateTime, String, ForeignKey, Numeric, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.extensions import db
@@ -7,7 +7,7 @@ from src.extensions import db
 class Barber(db.Model):
     __tablename__ = "barber"
 
-    barber_id: Mapped[int] = mapped_column(primery_key=True, autoincrement=True)
+    barber_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     person_id: Mapped[int] = mapped_column(
         ForeignKey("person.person.id"), nullable=False
@@ -22,10 +22,13 @@ class Barber(db.Model):
     schedule: Mapped[str] = mapped_column(String(100), nullable=False)
 
     createdAt: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=DateTime.utcnow
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     updatedAt: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     person = relationship("Person", back_populates="barbers")

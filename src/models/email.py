@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.extensions import db
@@ -15,9 +15,12 @@ class Email(db.Model):
     is_principal: Mapped[int] = mapped_column(Boolean, nullable=False)
     type: Mapped[str] = mapped_column(String(25), nullable=False)
     createdAt: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=DateTime.utcnow
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     updatedAt: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=DateTime.utcnow, onupdate=DateTime.utcnow
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
     person = relationship("Person", back_populates="emails")
